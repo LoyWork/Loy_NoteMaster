@@ -31,6 +31,8 @@ import { createDir, createDoc } from '@fe/services/document'
 import store from '@fe/support/store'
 import type { Components } from '@fe/types'
 import TreeNode from './TreeNode.vue'
+import { refreshGitStatus, resetGitStatus } from '@fe/services/git-status'
+import { registerHook, removeHook } from '@fe/core/hook'
 
 export default defineComponent({
   name: 'tree',
@@ -48,6 +50,7 @@ export default defineComponent({
     async function refresh () {
       await fetchSettings()
       await refreshTree()
+      await refreshGitStatus()
     }
 
     function showContextMenu () {
@@ -91,6 +94,17 @@ export default defineComponent({
     }
 
     watch(currentRepo, refreshTree, { immediate: true })
+    watch(currentRepo, () => { refreshGitStatus() }, { immediate: true })
+    function refreshGit () {
+      if (document.visibilityState !== 'hidden') refreshGitStatus()
+    }
+    const gitTimer = setInterval(refreshGit, 5000)
+    window.addEventListener('focus', refreshGit)
+    document.addEventListener('visibilitychange', refreshGit)
+    registerHook('DOC_SAVED', refreshGit)
+    registerHook('DOC_CREATED', refreshGit)
+    registerHook('DOC_DELETED', refreshGit)
+    registerHook('DOC_MOVED', refreshGit)
 
     registerAction({
       name: 'tree.reveal-current-node',
@@ -102,6 +116,14 @@ export default defineComponent({
     })
 
     onBeforeUnmount(() => {
+      clearInterval(gitTimer)
+      window.removeEventListener('focus', refreshGit)
+      document.removeEventListener('visibilitychange', refreshGit)
+      removeHook('DOC_SAVED', refreshGit)
+      removeHook('DOC_CREATED', refreshGit)
+      removeHook('DOC_DELETED', refreshGit)
+      removeHook('DOC_MOVED', refreshGit)
+      resetGitStatus()
       removeAction('tree.reveal-current-node')
     })
 

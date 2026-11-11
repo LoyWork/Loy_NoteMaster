@@ -19,13 +19,8 @@ export default {
         system: 'light',
       }[theme] as ThemeName
 
-      if (ctx.getPremium()) {
-        ctx.theme.setTheme(nextTheme as any)
-        ctx.ui.useToast().show('info', ctx.i18n.t('status-bar.theme.tips', ctx.i18n.t(`status-bar.theme.${nextTheme}`)))
-      } else {
-        ctx.ui.useToast().show('warning', ctx.i18n.t('premium.need-purchase', 'Theme'))
-        ctx.showPremium()
-      }
+      ctx.theme.setTheme(nextTheme)
+      ctx.ui.useToast().show('info', ctx.i18n.t('status-bar.theme.tips', ctx.i18n.t(`status-bar.theme.${nextTheme}`)))
     }
 
     ctx.statusBar.tapMenus(menus => {

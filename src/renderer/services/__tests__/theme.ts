@@ -93,9 +93,10 @@ test('resolves system color scheme through match media', async () => {
   expect(theme.getColorScheme()).toBe('light')
 })
 
-test('sets theme, persists it, and gates premium themes', async () => {
+test('sets and persists dark and system themes without a premium license', async () => {
   const theme = await import('@fe/services/theme')
 
+  mocks.purchased = false
   theme.setTheme('dark')
 
   expect(document.documentElement.getAttribute('app-theme')).toBe('dark')
@@ -105,8 +106,8 @@ test('sets theme, persists it, and gates premium themes', async () => {
   mocks.purchased = false
   theme.setTheme('system')
 
-  expect(document.documentElement.getAttribute('app-theme')).toBe('light')
-  expect(mocks.storage.get('app.theme')).toBe('light')
+  expect(document.documentElement.getAttribute('app-theme')).toBe('system')
+  expect(mocks.storage.get('app.theme')).toBe('system')
 })
 
 test('adds inline and linked styles to document head', async () => {

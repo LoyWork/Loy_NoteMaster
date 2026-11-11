@@ -71,6 +71,8 @@ const mocks = vi.hoisted(() => {
     fileRm: vi.fn(),
     fileStat: vi.fn(),
     fileTree: vi.fn(),
+    gitReadStatus: vi.fn(),
+    repoGetPath: vi.fn(),
     fileUpload: vi.fn(),
     fileWatchFile: vi.fn(),
     fileWrite: vi.fn(),
@@ -100,6 +102,9 @@ const mocks = vi.hoisted(() => {
     socketIo: vi.fn(() => socketEmitter)
   }
 })
+
+vi.mock('../git-status', () => ({ readGitStatus: mocks.gitReadStatus }))
+vi.mock('../repository', () => ({ default: { getPath: mocks.repoGetPath } }))
 
 vi.mock('koa', () => ({
   __esModule: true,
@@ -419,7 +424,7 @@ describe('server index module', () => {
   })
 
   test.each([
-    '/api/file', '/api/tree', '/api/settings', '/api/settings/js', '/api/run',
+    '/api/file', '/api/tree', '/api/git-status', '/api/settings', '/api/settings/js', '/api/run',
     '/api/attachment', '/api/plugins', '/api/extensions', '/api/mcp', '/api/future-route'
   ])('rejects untrusted origins before any handler: %s', async (path) => {
     const ctx = await runRequest({ path, headers: { origin: 'https://attacker.example' } })
@@ -638,6 +643,20 @@ describe('server index module', () => {
     expect(saved['server.jwt-secret']).toBe('signing-secret')
     await runRequest({ path: '/api/settings', method: 'POST', body: { theme: 'changed.css' } })
     expect(mocks.configSetAll).toHaveBeenCalledWith({ ...saved, theme: 'changed.css' })
+  })
+
+  test('reads Git status only for configured repositories', async () => {
+    mocks.repoGetPath.mockReturnValueOnce('/notes')
+    const status = { available: true, statuses: { '/note.md': 'modified' } }
+    mocks.gitReadStatus.mockResolvedValueOnce(status)
+    const response = await runRequest({ path: '/api/git-status', query: { repo: 'notes' } })
+    expect(response.body).toEqual({ status: 'ok', message: 'success', data: status })
+    expect(mocks.gitReadStatus).toHaveBeenCalledWith('/notes')
+    mocks.gitReadStatus.mockClear()
+    mocks.repoGetPath.mockReturnValueOnce(null)
+    const missing = await runRequest({ path: '/api/git-status', query: { repo: 'missing' } })
+    expect(missing.body.status).toBe('error')
+    expect(mocks.gitReadStatus).not.toHaveBeenCalled()
   })
 
   test('handles file read, write, delete, rename, copy, history, tree, and watch routes', async () => {

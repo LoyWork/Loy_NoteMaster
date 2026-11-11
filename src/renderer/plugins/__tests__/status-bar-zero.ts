@@ -247,7 +247,7 @@ describe('status-bar zero coverage plugins', () => {
     ])
   })
 
-  it('switches theme from status menu and registered action with premium checks', async () => {
+  it('switches theme from status menu and registered action without premium', async () => {
     setupBaseMocks()
     const { default: plugin } = await import('../status-bar-theme')
     const warningToast = { show: vi.fn() }
@@ -267,8 +267,9 @@ describe('status-bar zero coverage plugins', () => {
 
     ctx.getPremium.mockReturnValue(false)
     ctx.actions.get('plugin.status-bar-theme.switch').handler()
-    expect(ctx.showPremium).toHaveBeenCalledTimes(1)
-    expect(warningToast.show).toHaveBeenCalledWith('warning', 'premium.need-purchase:Theme')
+    expect(ctx.theme.setTheme).toHaveBeenCalledTimes(2)
+    expect(ctx.showPremium).not.toHaveBeenCalled()
+    expect(warningToast.show).not.toHaveBeenCalledWith('warning', 'premium.need-purchase:Theme')
   })
 
   it('registers document info menu, focuses editor and adds styles', async () => {

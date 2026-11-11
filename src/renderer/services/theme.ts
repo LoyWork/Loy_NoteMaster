@@ -1,5 +1,4 @@
 import { triggerHook } from '@fe/core/hook'
-import { getPurchased } from '@fe/others/premium'
 import type { ThemeName } from '@fe/types'
 import * as storage from '@fe/utils/storage'
 import * as ioc from '@fe/core/ioc'
@@ -43,10 +42,6 @@ export function getColorScheme () {
  * @param name
  */
 export function setTheme (name: ThemeName) {
-  if (!getPurchased()) {
-    name = 'light'
-  }
-
   document.documentElement.setAttribute('app-theme', name)
   triggerHook('THEME_CHANGE', { name })
   storage.set('app.theme', name)

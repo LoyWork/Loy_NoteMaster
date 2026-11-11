@@ -16,6 +16,8 @@ import * as undici from 'undici'
 import { promisify } from 'util'
 import { STATIC_DIR, HOME_DIR, HELP_DIR, USER_PLUGIN_DIR, FLAG_DISABLE_SERVER, APP_NAME, USER_THEME_DIR, RESOURCES_DIR, BUILD_IN_STYLES, USER_EXTENSION_DIR, USER_DATA } from '../constant'
 import * as file from './file'
+import repository from './repository'
+import { readGitStatus } from './git-status'
 import * as search from './search'
 import run from './run'
 import convert from './convert'
@@ -239,6 +241,11 @@ const fileContent = async (ctx: any, next: any) => {
       await file.cp(repo, oldPath, newPath)
       ctx.body = result()
     }
+  } else if (ctx.path === '/api/git-status' && ctx.method === 'GET') {
+    const repoPath = typeof ctx.query.repo === 'string' ? repository.getPath(ctx.query.repo) : null
+    if (!repoPath) throw new Error('Repository not found')
+    noCache(ctx)
+    ctx.body = result('ok', 'success', await readGitStatus(repoPath))
   } else if (ctx.path === '/api/tree') {
     const arr = (ctx.query.sort || '').split('-')
     const sort = { by: arr[0] || 'name', order: arr[1] || 'asc' }

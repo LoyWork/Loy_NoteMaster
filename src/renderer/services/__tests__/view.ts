@@ -89,6 +89,7 @@ import {
   addStyleLink,
   addStyles,
   disableSyncScrollAwhile,
+  exitPresent,
   getAllPreviewers,
   getContentHtml,
   getContextMenuItems,
@@ -195,6 +196,27 @@ test('delegates refresh/reveal actions and toggles presentation through register
   expect(mocks.state.presentation).toBe(false)
 
   vi.useRealTimers()
+})
+
+test('explicit presentation exit works while the Escape command is blocked', () => {
+  vi.useFakeTimers()
+  try {
+    const iframe = makeIframe()
+    const input = iframe.contentDocument!.createElement('input')
+    iframe.contentDocument!.body.appendChild(input)
+    input.focus()
+    mocks.state.presentation = true
+    const exit = mocks.actions.find(action => action.name === 'view.exit-presentation')
+    expect(exit.when()).toBe(false)
+
+    exitPresent()
+
+    expect(mocks.state.presentation).toBe(false)
+    vi.runOnlyPendingTimers()
+    expect(mocks.emitResize).toHaveBeenCalled()
+  } finally {
+    vi.useRealTimers()
+  }
 })
 
 test('exit presentation command ignores text inputs and visible masks', () => {

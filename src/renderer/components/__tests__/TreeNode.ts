@@ -4,6 +4,7 @@ import { flushPromises, shallowMount } from '@vue/test-utils'
 const mocks = vi.hoisted(() => ({
   storeState: {
     currentFile: undefined as any,
+    currentRepo: { name: 'repo' },
   },
   contextMenuShow: vi.fn(),
   triggerHook: vi.fn(),
@@ -75,6 +76,7 @@ vi.mock('../SvgIcon.vue', () => ({
 }))
 
 import TreeNode from '../TreeNode.vue'
+import { gitStatuses, resetGitStatus } from '@fe/services/git-status'
 
 const fileNode = {
   type: 'file',
@@ -96,6 +98,7 @@ const dirNode = {
 }
 
 beforeEach(() => {
+  resetGitStatus()
   Element.prototype.scrollIntoViewIfNeeded = vi.fn()
   mocks.storeState.currentFile = undefined
   mocks.contextMenuShow.mockReset()
@@ -115,6 +118,19 @@ beforeEach(() => {
 })
 
 describe('TreeNode', () => {
+  test('updates Git decorations for files and folders and removes them when clean', async () => {
+    const file = shallowMount(TreeNode, { props: { item: fileNode } })
+    const folder = shallowMount(TreeNode, { props: { item: dirNode } })
+    gitStatuses.value = { '/docs/Alpha.md': 'added', '/docs': 'modified' }
+    await nextTick()
+    expect(file.find('.file-name').attributes('data-git-status')).toBe('added')
+    expect(folder.find('summary').attributes('data-git-status')).toBe('modified')
+    gitStatuses.value = {}
+    await nextTick()
+    expect(file.find('.file-name').attributes('data-git-status')).toBeUndefined()
+    file.unmount()
+    folder.unmount()
+  })
   test('renders file state, selects with hook fallback, opens context menu and supports drag text', async () => {
     mocks.storeState.currentFile = { repo: 'repo', path: '/docs/Alpha.md' }
     const wrapper = shallowMount(TreeNode, {

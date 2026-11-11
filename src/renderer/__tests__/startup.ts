@@ -388,7 +388,7 @@ describe('renderer startup', () => {
 
     mocks.hooks.get('SETTING_FETCHED')!.forEach(handler => handler({ settings: {} }))
     await flush()
-    expect(mocks.setTheme).toHaveBeenCalledWith('light')
+    expect(mocks.setTheme).not.toHaveBeenCalled()
     vi.runOnlyPendingTimers()
     expect(mocks.setCurrentRepo).toHaveBeenCalledWith('repo-a')
     expect(mocks.extensionInit).toHaveBeenCalled()
@@ -413,9 +413,10 @@ describe('renderer startup', () => {
         getEditor: () => themeEditor,
       },
     })
-    expect(themeEditor.setValue).toHaveBeenCalledWith('light')
-    expect(mocks.toastShow).toHaveBeenCalledWith('warning', 'premium.need-purchase:Theme')
-    expect(mocks.showPremium).toHaveBeenCalled()
+    expect(mocks.setTheme).toHaveBeenLastCalledWith('dark')
+    expect(themeEditor.setValue).not.toHaveBeenCalled()
+    expect(mocks.toastShow).not.toHaveBeenCalledWith('warning', 'premium.need-purchase:Theme')
+    expect(mocks.showPremium).not.toHaveBeenCalled()
 
     firstHook('DOC_SWITCHED')()
     vi.runOnlyPendingTimers()

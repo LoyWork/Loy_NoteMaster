@@ -352,7 +352,8 @@ export function enterPresent () {
  * Exit presentation mode.
  */
 export function exitPresent () {
-  getActionHandler('view.exit-presentation')()
+  // Explicit exit controls must work even when a floating panel blocks Escape.
+  present(false)
 }
 
 /**

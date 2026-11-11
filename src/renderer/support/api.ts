@@ -4,6 +4,12 @@ import type { IProgressMessage, ISerializedFileMatch, ISerializedSearchSuccess, 
 import type { Components, Doc, ExportType, FileItem, FileReadResult, FileSort, FileStat, PathItem } from '@fe/types'
 import { isElectron } from '@fe/support/env'
 import { HELP_REPO_NAME, JWT_TOKEN } from './args'
+import type { GitStatusResult } from '@share/git-status'
+
+export async function fetchGitStatus (repo: string): Promise<GitStatusResult> {
+  const { data } = await fetchHttp('/api/git-status?repo=' + encodeURIComponent(repo))
+  return data
+}
 
 export type ApiResult<T = any> = {
   status: 'ok' | 'error',

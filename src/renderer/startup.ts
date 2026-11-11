@@ -13,7 +13,7 @@ import { createDoc, isMarkdownFile, isMarked, markDoc, switchDoc, toUri, unmarkD
 import { DEFAULT_MARKDOWN_EDITOR_NAME, whenEditorReady } from '@fe/services/editor'
 import { getLanguage, setLanguage, t } from '@fe/services/i18n'
 import { fetchSettings } from '@fe/services/setting'
-import { getPurchased, showPremium } from '@fe/others/premium'
+import { getPurchased } from '@fe/others/premium'
 import * as extension from '@fe/others/extension'
 import { getThemeName, setTheme } from '@fe/services/theme'
 import { toggleOutline } from '@fe/services/workbench'
@@ -122,12 +122,6 @@ registerHook('DOC_MOVED', async ({ oldDoc, newDoc }) => {
 })
 
 registerHook('SETTING_FETCHED', () => {
-  if (!getPurchased(true)) {
-    whenEditorReady().then(() => {
-      setTheme('light')
-    })
-  }
-
   setTimeout(() => {
     // reset current repo to change repo setting
     repo.setCurrentRepo(store.state.currentRepo?.name)
@@ -164,13 +158,7 @@ registerHook('SETTING_PANEL_AFTER_SHOW', ({ editor }) => {
     const theme = themeEditor.getValue()
     const oldTheme = getThemeName()
     if (oldTheme !== theme) {
-      if (getPurchased()) {
-        setTheme(theme)
-      } else {
-        themeEditor.setValue(oldTheme)
-        useToast().show('warning', t('premium.need-purchase', 'Theme'))
-        showPremium()
-      }
+      setTheme(theme)
     }
   })
 })

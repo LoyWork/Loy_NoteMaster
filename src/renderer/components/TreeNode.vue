@@ -17,6 +17,7 @@
       @keydown.enter.prevent>
       <summary
         :class="{folder: true, 'folder-selected': selected}"
+        :data-git-status="gitStatus"
         :style="`padding-left: ${itemNode.level}em`"
         @contextmenu.exact.prevent.stop="showContextMenu(itemNode)">
         <div class="item" @mouseenter.self="onMouseEnter" @mouseleave.self="onMouseLeave">
@@ -36,6 +37,7 @@
       ref="refFile"
       v-else
       :class="{name: true, 'file-name': true, selected}"
+      :data-git-status="gitStatus"
       :style="`padding-left: ${itemNode.level}em`"
       :title="itemNode.path + '\n\n' + fileTitle"
       @click.exact.prevent="select(item)"
@@ -66,6 +68,7 @@ import { encodeMarkdownLink, escapeMd, fileToBase64URL } from '@fe/utils'
 import store from '@fe/support/store'
 import { upload } from '@fe/support/api'
 import SvgIcon from './SvgIcon.vue'
+import { gitStatuses } from '@fe/services/git-status'
 
 export default defineComponent({
   name: 'tree-node',
@@ -87,6 +90,7 @@ export default defineComponent({
     const actions = shallowRef<Components.Tree.NodeActionBtn[]>([])
 
     const itemNode = computed(() => ({ ...props.item, marked: isMarked(props.item) }))
+    const gitStatus = computed(() => props.item.repo === store.state.currentRepo?.name ? gitStatuses.value[props.item.path] : undefined)
     const open = ref(itemNode.value.path === '/')
 
     watch(() => props.item, () => {
@@ -367,6 +371,7 @@ export default defineComponent({
     return {
       open,
       itemNode,
+      gitStatus,
       refFile,
       fileTitle,
       selected,
@@ -403,6 +408,31 @@ export default defineComponent({
 .tree-node * {
   user-select: none;
 }
+
+[data-git-status="added"] > .item-label,
+[data-git-status="added"] > .item .item-label {
+  color: var(--git-added, #73c991);
+}
+
+[data-git-status="modified"] > .item-label,
+[data-git-status="modified"] > .item .item-label,
+[data-git-status="renamed"] > .item-label,
+[data-git-status="renamed"] > .item .item-label {
+  color: var(--git-modified, #d7ba7d);
+}
+
+[data-git-status="deleted"] > .item-label,
+[data-git-status="deleted"] > .item .item-label,
+[data-git-status="conflicted"] > .item-label,
+[data-git-status="conflicted"] > .item .item-label {
+  color: var(--git-conflicted, #f48771);
+}
+
+@media (prefers-color-scheme: light) {
+  :global(html[app-theme="system"]) { --git-added: #22863a; --git-modified: #9a6700; --git-conflicted: #c72e0f; }
+}
+
+:global(html[app-theme="light"]) { --git-added: #22863a; --git-modified: #9a6700; --git-conflicted: #c72e0f; }
 
 summary {
   outline: none;
