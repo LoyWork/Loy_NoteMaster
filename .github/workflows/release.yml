@@ -4,12 +4,18 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to build (for example v1.0.0)
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: windows-release-${{ github.ref }}
+  group: windows-release-${{ inputs.tag || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -28,6 +34,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -39,6 +47,8 @@ jobs:
 
       - name: Set release version from tag
         id: version
+        env:
+          GITHUB_REF_NAME: ${{ inputs.tag || github.ref_name }}
         run: node scripts/prepare-fork-release.cjs
 
       - name: Check release tag handling
@@ -104,7 +114,8 @@ jobs:
       - name: Publish fork release
         uses: softprops/action-gh-release@v2
         with:
-          name: Loy NoteMaster ${{ github.ref_name }}
+          name: Loy NoteMaster ${{ inputs.tag || github.ref_name }}
+          tag_name: ${{ inputs.tag || github.ref_name }}
           prerelease: ${{ steps.version.outputs.prerelease == 'true' }}
           generate_release_notes: true
           fail_on_unmatched_files: true

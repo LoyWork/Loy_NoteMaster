@@ -15,6 +15,8 @@ git push origin v1.0.0
 下一版使用新的版本号，例如 `v1.0.1`。测试版可用 `v1.0.1-rc.1`，会自动标记为 GitHub Pre-release。
 单纯推送分支或仅在本地创建 tag 不会触发打包。已有的 tag 不会被追溯打包。
 
+若 fork 首次启用 Actions 时错过了 tag 推送事件，可在该工作流中选择 **Run workflow**，填写已经存在的版本 tag。该入口只重试对应 tag 的构建和发布。
+
 CI 自动将 tag 中的版本写入构建时的 package.json，无需另外手改源码版本号。
 
 ## 下载
