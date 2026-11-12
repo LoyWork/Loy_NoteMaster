@@ -48,8 +48,10 @@ jobs:
       - name: Set release version from tag
         id: version
         env:
-          GITHUB_REF_NAME: ${{ inputs.tag || github.ref_name }}
-        run: node scripts/prepare-fork-release.cjs
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          $env:GITHUB_REF_NAME = $env:RELEASE_TAG
+          node scripts/prepare-fork-release.cjs
 
       - name: Check release tag handling
         run: node --test scripts/__tests__/prepare-fork-release.test.cjs
