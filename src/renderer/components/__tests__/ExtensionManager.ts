@@ -319,7 +319,7 @@ describe('ExtensionManager', () => {
     expect(mocks.open).toHaveBeenCalledWith('https://example.test/ext-one', '_blank')
   })
 
-  test('guards premium-only extensions before installing', async () => {
+  test('installs extensions with former premium requirements without a license', async () => {
     const wrapper = mount(ExtensionManager, {
       global: { mocks: { $t: (key: string, value?: string) => value ? `${key}:${value}` : key } },
     })
@@ -337,9 +337,9 @@ describe('ExtensionManager', () => {
 
     await (wrapper.vm as any).installLatest((wrapper.vm as any).currentExtension).catch(() => undefined)
 
-    expect(mocks.showPremium).toHaveBeenCalled()
-    expect(mocks.toastShow).toHaveBeenCalledWith('info', 'premium.need-purchase:Premium Extension')
-    expect(mocks.install).not.toHaveBeenCalledWith(expect.objectContaining({ id: 'premium-ext' }), expect.anything())
+    expect(mocks.showPremium).not.toHaveBeenCalled()
+    expect(mocks.toastShow).not.toHaveBeenCalledWith('info', 'premium.need-purchase:Premium Extension')
+    expect(mocks.install).toHaveBeenCalledWith(expect.objectContaining({ id: 'premium-ext' }), expect.anything())
   })
 
   test('confirms unknown-origin enable, handles fetch failures, and saves registry settings', async () => {

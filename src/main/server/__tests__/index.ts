@@ -92,7 +92,6 @@ const mocks = vi.hoisted(() => {
     jwtVerify: vi.fn(),
     nodePath,
     plantuml: vi.fn(),
-    premiumActivate: vi.fn(),
     request: vi.fn(),
     runCode: vi.fn(),
     search: vi.fn(),
@@ -211,10 +210,6 @@ vi.mock('../convert', () => ({
 vi.mock('../plantuml', () => ({
   __esModule: true,
   default: (...args: any[]) => mocks.plantuml(...args)
-}))
-
-vi.mock('../premium', () => ({
-  activate: (...args: any[]) => mocks.premiumActivate(...args)
 }))
 
 vi.mock('../../shell', () => ({
@@ -368,7 +363,6 @@ describe('server index module', () => {
     mocks.handleMCPRequest.mockResolvedValue(undefined)
     mocks.jwtVerify.mockReturnValue({ role: 'admin' })
     mocks.plantuml.mockResolvedValue({ type: 'image/svg+xml', content: '<svg />' })
-    mocks.premiumActivate.mockResolvedValue('premium-result')
     mocks.request.mockResolvedValue({
       body: new mocks.PassThrough(),
       headers: { 'content-type': 'text/plain' },
@@ -645,6 +639,13 @@ describe('server index module', () => {
     expect(mocks.configSetAll).toHaveBeenCalledWith({ ...saved, theme: 'changed.css' })
   })
 
+  test('retired activation endpoint responds locally without licensing requests', async () => {
+    const response = await runRequest({ method: 'POST', path: '/api/premium', body: { method: 'fetchToken', payload: { licenseId: 'old-license' } } })
+    expect(response.status).toBe(410)
+    expect(response.body).toEqual({ status: 'error', message: 'License activation is not used in Loy NoteMaster', data: null })
+    expect(mocks.request).not.toHaveBeenCalled()
+  })
+
   test('reads Git status only for configured repositories', async () => {
     mocks.repoGetPath.mockReturnValueOnce('/notes')
     const status = { available: true, statuses: { '/note.md': 'modified' } }
@@ -832,7 +833,8 @@ describe('server index module', () => {
     expect(plugins.body).toContain('console.log(1)')
 
     await expect(runRequest({ method: 'POST', path: '/api/premium', body: { method: 'activate', payload: { code: 'x' } } })).resolves.toMatchObject({
-      body: { status: 'ok', message: 'success', data: 'premium-result' }
+      status: 410,
+      body: { status: 'error', message: 'License activation is not used in Loy NoteMaster', data: null }
     })
   })
 

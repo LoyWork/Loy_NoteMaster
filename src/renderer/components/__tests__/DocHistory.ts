@@ -261,9 +261,10 @@ describe('DocHistory', () => {
     expect((wrapper.vm as any).content).toBe('decrypted history')
 
     mocks.purchased = false
+    mocks.modalInput.mockResolvedValueOnce('keep this version')
     await (wrapper.vm as any).markVersion((wrapper.vm as any).versions[0])
-    expect(mocks.toastShow).toHaveBeenCalledWith('warning', 'premium.need-purchase:Mark')
-    expect(mocks.showPremium).toHaveBeenCalled()
+    expect(mocks.commentHistoryVersion).toHaveBeenCalledWith(expect.anything(), expect.anything(), 'keep this version')
+    expect(mocks.showPremium).not.toHaveBeenCalled()
 
     mocks.decrypt.mockImplementationOnce(() => {
       throw new Error('bad password')

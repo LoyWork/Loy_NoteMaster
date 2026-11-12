@@ -111,15 +111,6 @@
                     <img alt="npm" :key="`download-${currentExtension.id}`" :src="`https://img.shields.io/npm/dy/${currentExtension.id}?color=%234180bd&label=Download&style=flat-square`">
                   </div>
                   <div
-                    v-if="currentExtension.requirements.premium"
-                    class="tag"
-                    style="cursor: pointer;"
-                    @click="showPremium()"
-                  >
-                    <span>{{ $t('extension.requirement') }}</span>
-                    <span class="warning-tag">{{ $t('premium.premium') }}</span>
-                  </div>
-                  <div
                     v-if="currentExtension.requirements.terminal"
                     class="tag"
                     style="cursor: pointer;"
@@ -231,7 +222,6 @@ import * as setting from '@fe/services/setting'
 import { useModal } from '@fe/support/ui/modal'
 import { useToast } from '@fe/support/ui/toast'
 import { useContextMenu } from '@fe/support/ui/context-menu'
-import { getPurchased, showPremium } from '@fe/others/premium'
 import { FLAG_DISABLE_XTERM, FLAG_MAS, URL_MAS_LIMITATION } from '@fe/support/args'
 
 import XMask from '@fe/components/Mask.vue'
@@ -440,12 +430,6 @@ async function checkOrigin (extension: Extension) {
 }
 
 async function checkRequirements (extension: Extension) {
-  if (extension.requirements.premium && !getPurchased()) {
-    useToast().show('info', t('premium.need-purchase', extension.displayName))
-    showPremium()
-    throw new Error('Extension requires premium')
-  }
-
   if (extension.requirements.terminal && (FLAG_DISABLE_XTERM || FLAG_MAS)) {
     if (await useModal().confirm({
       content: t('not-support-mas'),

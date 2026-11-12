@@ -31,7 +31,6 @@
   <XFilter />
   <SettingPanel />
   <ExportPanel />
-  <Premium />
   <ControlCenter />
   <DocHistory />
   <ExtensionManager />
@@ -66,7 +65,6 @@ import ContentRightSide from '@fe/components/ContentRightSide.vue'
 
 import SettingPanel from '@fe/components/SettingPanel.vue'
 import ExportPanel from '@fe/components/ExportPanel.vue'
-import Premium from '@fe/components/Premium.vue'
 import XFilter from '@fe/components/Filter.vue'
 import ControlCenter from '@fe/components/ControlCenter.vue'
 import DocHistory from '@fe/components/DocHistory.vue'
@@ -90,7 +88,6 @@ export default defineComponent({
     Previewer,
     ContentRightSide,
     XFilter,
-    Premium,
     SettingPanel,
     ExportPanel,
     ControlCenter,

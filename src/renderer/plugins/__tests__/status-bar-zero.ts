@@ -164,7 +164,7 @@ describe('status-bar zero coverage plugins', () => {
     plugin.register(ctx)
 
     const menu = applyMenus(ctx)['status-bar-help']
-    item(menu, 'show-premium').onClick()
+    expect(menu.list.some((entry: any) => entry.id === 'show-premium')).toBe(false)
     item(menu, 'show-shortcuts').onClick()
     item(menu, 'visit-guide').onClick()
     item(menu, 'show-readme').onClick()
@@ -172,7 +172,7 @@ describe('status-bar zero coverage plugins', () => {
     item(menu, 'show-features').onClick()
     item(menu, 'about').onClick()
 
-    expect(ctx.showPremium).toHaveBeenCalledTimes(1)
+    expect(ctx.showPremium).not.toHaveBeenCalled()
     expect(ctx.handlers.get('keyboard-shortcuts.show-manager')).toHaveBeenCalledTimes(1)
     expect(open).toHaveBeenCalledWith(expect.stringContaining('yank-note'), '_blank')
     expect(ctx.doc.showHelp).toHaveBeenCalledWith('README.md')
@@ -343,14 +343,14 @@ describe('status-bar zero coverage plugins', () => {
     expect(ctx.editor.getEditor).toHaveBeenCalledTimes(2)
   })
 
-  it('runs premium confetti handler from menu and action', async () => {
+  it('keeps confetti available as a command without an upgrade menu', async () => {
     setupBaseMocks()
     const { default: plugin } = await import('../status-bar-premium')
     const ctx = createCtx()
     plugin.register(ctx)
 
-    const menu = applyMenus(ctx)['status-bar-confetti']
-    menu.onClick()
+    expect(applyMenus(ctx)['status-bar-confetti']).toBeUndefined()
+    ctx.actions.get('plugin.status-bar-confetti.show').handler()
     expect(ctx.lib.confetti).toHaveBeenCalledWith(expect.objectContaining({
       particleCount: 150,
       spread: 100,
@@ -358,8 +358,8 @@ describe('status-bar zero coverage plugins', () => {
 
     ctx.getPremium.mockReturnValue(false)
     ctx.actions.get('plugin.status-bar-confetti.show').handler()
-    expect(ctx.showPremium).toHaveBeenCalledTimes(1)
-    expect(ctx.theme.addStyles).toHaveBeenCalledWith(expect.stringContaining('status-bar-confetti'))
+    expect(ctx.showPremium).not.toHaveBeenCalled()
+    expect(ctx.lib.confetti).toHaveBeenCalledTimes(2)
   })
 
   it('registers terminal menu and invokes toggle action', async () => {

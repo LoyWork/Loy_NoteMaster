@@ -34,14 +34,6 @@ export default {
         title: ctx.i18n.t('status-bar.help.help'),
         list: [
           {
-            id: 'show-premium',
-            type: 'normal',
-            title: ctx.i18n.t('premium.premium'),
-            hidden: ctx.args.FLAG_DEMO,
-            onClick: () => ctx.showPremium()
-          },
-          { type: 'separator' },
-          {
             id: 'show-shortcuts',
             type: 'normal',
             title: ctx.i18n.t('status-bar.help.shortcuts'),

@@ -124,7 +124,6 @@ describe('GetStarted', () => {
     expect(itemLinks(wrapper)).toEqual(expect.arrayContaining([
       'tree.context-menu.create-doc...',
       'status-bar.nav.goto...',
-      'premium.premium...',
       'status-bar.extension.extension-manager...',
       'status-bar.setting...',
     ]))
@@ -141,12 +140,9 @@ describe('GetStarted', () => {
     expect(mocks.actionHandler).toHaveBeenCalledTimes(1)
 
     await links[2].trigger('click')
-    expect(mocks.showPremium).toHaveBeenCalledTimes(1)
-
-    await links[3].trigger('click')
     expect(mocks.showExtensionManager).toHaveBeenCalledTimes(1)
 
-    await links[4].trigger('click')
+    await links[3].trigger('click')
     expect(mocks.showSettingPanel).toHaveBeenCalledTimes(1)
   })
 

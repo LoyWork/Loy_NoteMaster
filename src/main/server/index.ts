@@ -22,7 +22,6 @@ import * as search from './search'
 import run from './run'
 import convert from './convert'
 import plantuml from './plantuml'
-import * as premium from './premium'
 import shell from '../shell'
 import config from '../config'
 import * as jwt from '../jwt'
@@ -837,9 +836,8 @@ const userExtension = async (ctx: any, next: any) => {
 
 const premiumManage = async (ctx: any, next: any) => {
   if (ctx.method === 'POST' && ctx.path.startsWith('/api/premium')) {
-    const { method, payload } = ctx.request.body
-    const data = await (premium as any)[method](payload)
-    ctx.body = result('ok', 'success', data)
+    ctx.status = 410
+    ctx.body = result('error', 'License activation is not used in Loy NoteMaster')
   } else {
     await next()
   }

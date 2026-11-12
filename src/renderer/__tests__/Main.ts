@@ -86,7 +86,6 @@ vi.mock('@fe/components/Previewer.vue', () => ({ default: mocks.stub('Previewer'
 vi.mock('@fe/components/ContentRightSide.vue', () => ({ default: mocks.stub('ContentRightSide') }))
 vi.mock('@fe/components/SettingPanel.vue', () => ({ default: mocks.stub('SettingPanel') }))
 vi.mock('@fe/components/ExportPanel.vue', () => ({ default: mocks.stub('ExportPanel') }))
-vi.mock('@fe/components/Premium.vue', () => ({ default: mocks.stub('Premium') }))
 vi.mock('@fe/components/Filter.vue', () => ({ default: mocks.stub('Filter') }))
 vi.mock('@fe/components/ControlCenter.vue', () => ({ default: mocks.stub('ControlCenter') }))
 vi.mock('@fe/components/DocHistory.vue', () => ({ default: mocks.stub('DocHistory') }))

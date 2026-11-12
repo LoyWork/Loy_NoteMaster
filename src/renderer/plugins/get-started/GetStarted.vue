@@ -19,9 +19,6 @@
               <div class="item">
                 <a href="javascript:void(0);" @click="getActionHandler('workbench.show-quick-open')()">{{$t('status-bar.nav.goto')}}...</a>
               </div>
-              <div class="item" v-if="!getPurchased()">
-                <a href="javascript:void(0);" @click="showPremium()">{{$t('premium.premium')}}...</a>
-              </div>
               <div class="item">
                 <a href="javascript:void(0);" @click="showExtensionManager()">{{$t('status-bar.extension.extension-manager')}}...</a>
               </div>
@@ -77,7 +74,6 @@ import { FLAG_READONLY, URL_GITHUB } from '@fe/support/args'
 import { useI18n } from '@fe/services/i18n'
 import store from '@fe/support/store'
 import { showManager as showExtensionManager } from '@fe/others/extension'
-import { showPremium, getPurchased } from '@fe/others/premium'
 import { showSettingPanel } from '@fe/services/setting'
 import { createDoc, supported, switchDoc } from '@fe/services/document'
 import { getActionHandler } from '@fe/core/action'

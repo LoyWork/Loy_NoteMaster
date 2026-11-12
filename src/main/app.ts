@@ -33,7 +33,6 @@ const electronContextMenu = require('electron-context-menu')
 const electronRemote = require('@electron/remote/main')
 
 const isMacos = os.platform() === 'darwin'
-const isLinux = os.platform() === 'linux'
 
 let urlMode: UrlMode = 'scheme'
 let skipBeforeUnloadCheck = false
@@ -241,8 +240,7 @@ const createWindow = () => {
       nodeIntegration: true,
       contextIsolation: false,
     },
-    // for linux icon.
-    ...(isLinux ? { icon: path.join(__dirname, './assets/icon.png') } : undefined)
+    ...(!isMacos ? { icon: path.join(__dirname, './assets/icon.png') } : undefined)
   })
 
   win.setMenu(null)

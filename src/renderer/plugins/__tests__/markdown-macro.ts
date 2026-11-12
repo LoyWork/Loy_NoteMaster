@@ -268,7 +268,7 @@ describe('markdown-macro plugin', () => {
     expect(envAfterCache.source).toBeTruthy()
   })
 
-  test('shows premium placeholder when macro support is not purchased', () => {
+  test('evaluates macros without a purchased license', () => {
     const md = new MarkdownIt()
     const ctx = createCtx(md)
     markdownMacro.register(ctx)
@@ -280,8 +280,7 @@ describe('markdown-macro plugin', () => {
 
     md.parse('[= 1 + 1 =]', env)
 
-    expect(env.source).toContain('premium.need-purchase:Macro')
-    expect(env.source).toContain('premium.buy-license')
+    expect(env.source).toBe('2')
   })
 
   test('updates status menu copy action and filters invalid macro settings', () => {

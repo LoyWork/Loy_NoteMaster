@@ -4,11 +4,9 @@ import type { Plugin } from '@fe/context'
 import type { BuildInSettings, Doc } from '@fe/types'
 import type { MenuItem } from '@fe/services/status-bar'
 import { render } from '@fe/services/view'
-import { t } from '@fe/services/i18n'
 import { readFile } from '@fe/support/api'
 import { getLogger, md5 } from '@fe/utils'
 import { basename, dirname, resolve } from '@fe/utils/path'
-import { getPurchased } from '@fe/others/premium'
 import { isPlain } from '@fe/services/document'
 import ctx from '@fe/context'
 
@@ -102,7 +100,6 @@ function transform (
   vars: Record<string, any>,
   options: {
     autoRerender: boolean,
-    purchased: boolean,
     cache: CacheItem,
     callback?: (result: Result | Promise<Result>, match: string, matchPos: number) => void
   },
@@ -136,23 +133,19 @@ function transform (
       const id = md5(exp)
 
       let result: Result | Promise<Result>
-      if (options.purchased) {
-        if (options.cache[id]) {
-          result = options.cache[id]
-        } else {
-          result = macro(exp, _vars)
-          if (result instanceof Promise) {
-            options.cache[id] = result
-              .catch(() => ({ __macroResult: true, value: match } as Result))
-              .then(res => {
-                options.cache[id] = res
-                options.autoRerender && render()
-                return res
-              })
-          }
-        }
+      if (options.cache[id]) {
+        result = options.cache[id]
       } else {
-        result = { __macroResult: true, value: t('premium.need-purchase', 'Macro') + `, <a href="javascript: ctx.showPremium()">${t('premium.buy-license')}</a> ` }
+        result = macro(exp, _vars)
+        if (result instanceof Promise) {
+          options.cache[id] = result
+            .catch(() => ({ __macroResult: true, value: match } as Result))
+            .then(res => {
+              options.cache[id] = res
+              options.autoRerender && render()
+              return res
+            })
+        }
       }
 
       options.callback?.(result, match, matchPos)
@@ -190,7 +183,6 @@ function noop () {
 async function include (
   options: {
     belongDoc: Doc | undefined | null
-    purchased: boolean,
     cache: CacheItem,
     count: number,
     vars: Record<string, any>
@@ -313,7 +305,6 @@ export default {
         const cache = ctx.renderer.getRenderCache('plugin-macro', 'cache', { $define: {} } as CacheItem)
 
         const options = {
-          purchased: getPurchased() || file.repo === ctx.args.HELP_REPO_NAME,
           cache,
           autoRerender: true,
         }

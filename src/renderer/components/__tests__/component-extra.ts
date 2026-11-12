@@ -98,10 +98,6 @@ const mocks = vi.hoisted(() => ({
 vi.mock('dayjs', () => ({ default: () => ({ to: () => 'relative time' }) }))
 vi.mock('canvas-confetti', () => ({ default: mocks.confetti }))
 vi.mock('qrcode', () => ({ default: { toDataURL: mocks.qrcodeToDataURL } }))
-vi.mock('app-license', () => ({
-  decodeDevice: mocks.decodeDevice,
-  LicenseToken: class {},
-}))
 vi.mock('lodash-es', async () => {
   const actual: any = await vi.importActual('lodash-es')
   return { ...actual, debounce: (fn: any) => fn, throttle: (fn: any) => fn, random: mocks.random }
@@ -278,7 +274,6 @@ import SearchPanel from '../SearchPanel.vue'
 import Layout from '../Layout.vue'
 import TreeNode from '../TreeNode.vue'
 import DocHistory from '../DocHistory.vue'
-import Premium from '../Premium.vue'
 
 const editorMock = () => ({
   layout: vi.fn(),
@@ -545,57 +540,9 @@ describe('component-extra branch coverage', () => {
     expect((wrapper.vm as any).versions).toEqual([])
 
     mocks.getPurchased.mockReturnValueOnce(false)
+    mocks.modalInput.mockResolvedValueOnce('snapshot mark')
     await (wrapper.vm as any).markVersion({ value: 'x.md', label: 'x', title: 'x', encrypted: false, comment: '' })
-    expect(mocks.toastShow).toHaveBeenCalledWith('warning', 'premium.need-purchase:Mark')
+    expect(mocks.commentHistoryVersion).toHaveBeenCalledWith(expect.anything(), 'x.md', 'snapshot mark')
   })
 
-  test('Premium covers activation errors, remove-device cancel/error, tab watch reset, and confetti guard', async () => {
-    const token = {
-      licenseId: 'license-1',
-      name: 'Ada',
-      email: 'ada@example.test',
-      displayName: 'Premium',
-      expires: new Date('2030-01-01T00:00:00Z'),
-      device: 'dev1:darwin:mac',
-      devices: ['dev1:darwin:mac'],
-      status: 'stale-soon',
-    }
-    mocks.getPurchased.mockReturnValue(true)
-    mocks.getLicenseToken.mockReturnValue(token)
-    mocks.requestApi.mockResolvedValue(['dev1:darwin:mac', 'dev2:win32:pc'])
-
-    const wrapper = mount(Premium, {
-      global: { mocks: { $t: (key: string, value?: string) => value ? `${key}:${value}` : key } },
-    })
-    await flushPromises()
-
-    ;(wrapper.vm as any).doConfetti()
-    expect(mocks.confetti).toHaveBeenCalled()
-    ;(wrapper.vm as any).purchased = false
-    ;(wrapper.vm as any).doConfetti()
-    expect(mocks.confetti).toHaveBeenCalledTimes(1)
-
-    mocks.activateLicense.mockRejectedValueOnce(new Error('bad license'))
-    ;(wrapper.vm as any).license = '12345678-1234-1234-1234-123456789abc'
-    await (wrapper.vm as any).activate()
-    expect(mocks.toastShow).toHaveBeenCalledWith('warning', 'bad license')
-
-    mocks.modalConfirm.mockResolvedValueOnce(false)
-    await (wrapper.vm as any).removeDevice((wrapper.vm as any).devices[1])
-    expect(mocks.requestApi).toHaveBeenCalledTimes(1)
-
-    mocks.modalConfirm.mockResolvedValueOnce(true)
-    mocks.requestApi.mockRejectedValueOnce(new Error('remove failed'))
-    await expect((wrapper.vm as any).removeDevice((wrapper.vm as any).devices[1])).rejects.toThrow('remove failed')
-    expect(mocks.toastShow).toHaveBeenCalledWith('warning', 'Error: remove failed')
-
-    ;(wrapper.vm as any).tab = 'activation'
-    await nextTick()
-    ;(wrapper.vm as any).offline = true
-    ;(wrapper.vm as any).activationToken = 'token'
-    ;(wrapper.vm as any).tab = 'intro'
-    await nextTick()
-    expect((wrapper.vm as any).offline).toBe(false)
-    expect((wrapper.vm as any).activationToken).toBe('')
-  })
 })
