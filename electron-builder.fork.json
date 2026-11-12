@@ -1,0 +1,38 @@
+{
+  "appId": "com.loywork.notemaster",
+  "productName": "Loy NoteMaster",
+  "copyright": "Based on Yank Note, Copyright purocean and contributors",
+  "asar": true,
+  "asarUnpack": [
+    "bin/**/*",
+    "help/**/*",
+    "dist/main/resources/**/*",
+    "node_modules/node-pty/**/*",
+    "node_modules/@vscode/ripgrep/**/*"
+  ],
+  "files": [
+    "./bin/**",
+    "./help/**",
+    "./dist/**",
+    "!node_modules/plantuml-pipe/vendor/*"
+  ],
+  "extraMetadata": {
+    "name": "loy-notemaster",
+    "homepage": "https://github.com/LoyWork/Loy_NoteMaster",
+    "loyNoteMaster": true
+  },
+  "artifactName": "Loy-NoteMaster-${version}-win-${arch}.${ext}",
+  "directories": { "output": "out/windows" },
+  "npmRebuild": false,
+  "win": { "target": ["nsis", "zip"], "icon": "build/icon.ico" },
+  "nsis": {
+    "perMachine": false,
+    "deleteAppDataOnUninstall": false
+  },
+  "publish": {
+    "provider": "github",
+    "owner": "LoyWork",
+    "repo": "Loy_NoteMaster"
+  },
+  "fileAssociations": [{ "ext": "md", "name": "Markdown File", "role": "Editor" }]
+}

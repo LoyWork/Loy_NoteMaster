@@ -7111,9 +7111,9 @@ node-machine-id@^1.1.12:
   integrity sha512-QNABxbrPa3qEIfrE6GOJ7BYIuignnJw7iQ2YPbc3Nla1HzRJjXzZOiikfF8m7eAMfichLt3M4VgLOetqgDmgGQ==
 
 node-pty@^1.1.0-beta39:
-  version "1.1.0-beta9"
-  resolved "https://registry.yarnpkg.com/node-pty/-/node-pty-1.1.0-beta9.tgz#ed643cb3b398d031b4e31c216e8f3b0042435f1d"
-  integrity sha512-/Ue38pvXJdgRZ3+me1FgfglLd301GhJN0NStiotdt61tm43N5htUyR/IXOUzOKuNaFmCwIhy6nwb77Ky41LMbw==
+  version "1.1.0-beta39"
+  resolved "https://registry.yarnpkg.com/node-pty/-/node-pty-1.1.0-beta39.tgz#986bf10dc169ec846c51eac3587361d62ea36007"
+  integrity sha512-1xnN2dbS0QngT4xenpS/6Q77QtaDQo5vE6f4slATgZsFIv3NP4ObE7vAjYnZtMFG5OEh3jyDRZc+hy1DjDF7dg==
   dependencies:
     node-addon-api "^7.1.0"
 

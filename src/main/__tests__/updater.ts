@@ -1,4 +1,5 @@
 const mocks = vi.hoisted(() => ({
+  forkRelease: false,
   autoUpdater: {
     autoDownload: true,
     checkForUpdates: vi.fn(),
@@ -30,6 +31,8 @@ const mocks = vi.hoisted(() => ({
   storeSet: vi.fn(),
   whenReady: vi.fn(),
 }))
+
+vi.mock('fs', () => ({ default: { readdirSync: mocks.readdirSync }, readdirSync: mocks.readdirSync }))
 
 vi.mock('electron', () => ({
   app: {
@@ -106,6 +109,12 @@ vi.mock('../constant', () => ({
   GITHUB_URL: 'https://github.test/yn',
 }))
 
+vi.mock('../fork-release', () => ({
+  get forkRelease () { return mocks.forkRelease },
+  forkRepository: { owner: 'LoyWork', repo: 'Loy_NoteMaster' },
+  forkReleaseUrl: 'https://github.com/LoyWork/Loy_NoteMaster/releases',
+}))
+
 vi.mock('../i18n', () => ({
   $t: (key: string, ...args: any[]) => args.length ? `${key}:${args.join(',')}` : key,
 }))
@@ -134,6 +143,7 @@ async function flushReady () {
 describe('main updater module', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mocks.forkRelease = false
     vi.useFakeTimers()
     mocks.onHandlers = {}
     mocks.checkHandlers = {}
@@ -179,6 +189,18 @@ describe('main updater module', () => {
 
     vi.advanceTimersByTime(1000)
     expect(mocks.autoUpdater.checkForUpdates).toHaveBeenCalled()
+  })
+
+  test('fork packages use their own GitHub releases even with an upstream source setting', async () => {
+    mocks.forkRelease = true
+    mocks.getLocale.mockReturnValue('zh-CN')
+    mocks.configGet.mockImplementation((_key: string, defaultValue: any) => _key === 'updater.source' ? 'yank-note' : defaultValue)
+    await loadUpdater()
+    await flushReady()
+    expect(mocks.autoUpdater.setFeedURL).toHaveBeenCalledWith({ provider: 'github', owner: 'LoyWork', repo: 'Loy_NoteMaster' })
+    mocks.dialogShowMessageBox.mockResolvedValueOnce({ response: 1 })
+    await mocks.onHandlers['update-available']({ version: '1.0.1' })
+    expect(mocks.openExternal).toHaveBeenCalledWith('https://github.com/LoyWork/Loy_NoteMaster/releases')
   })
 
   test('public update checks reset ignore flag and respect automatic ignore setting', async () => {

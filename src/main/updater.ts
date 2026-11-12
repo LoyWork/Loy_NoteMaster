@@ -13,6 +13,7 @@ import { GITHUB_URL } from './constant'
 import { $t } from './i18n'
 import { registerAction } from './action'
 import config from './config'
+import { forkRelease, forkRepository, forkReleaseUrl } from './fork-release'
 
 type Source = 'auto' | 'github' | 'yank-note'
 
@@ -99,7 +100,9 @@ const init = (call?: () => void) => {
     }
   }
 
-  autoUpdater.setFeedURL({ provider: 'custom', owner: 'purocean', repo: 'yn', updateProvider: UpdateProvider as any })
+  autoUpdater.setFeedURL(forkRelease
+    ? { provider: 'github', ...forkRepository }
+    : { provider: 'custom', owner: 'purocean', repo: 'yn', updateProvider: UpdateProvider as any })
   autoUpdater.autoDownload = false
 
   autoUpdater.on('update-available', async info => {
@@ -151,7 +154,7 @@ const init = (call?: () => void) => {
     }
 
     if (response === 1 || response === 2) {
-      shell.openExternal(GITHUB_URL + '/releases')
+      shell.openExternal(forkRelease ? forkReleaseUrl : GITHUB_URL + '/releases')
     }
 
     if (response === 4) {
