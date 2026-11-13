@@ -1,7 +1,8 @@
 import { Token } from 'markdown-it'
 import type StateInline from 'markdown-it/lib/rules_inline/state_inline'
 
-export const RE_MATCH = /(#[a-zA-Z\u4e00-\u9fff][\da-zA-Z\u4e00-\u9fff_/-]*)/
+// Exclude complete CSS hex colors, without excluding tags such as #face/render.
+export const RE_MATCH = /(#(?!(?:[\da-fA-F]{3}|[\da-fA-F]{4}|[\da-fA-F]{6}|[\da-fA-F]{8})(?![\da-zA-Z\u4e00-\u9fff_/-]))[a-zA-Z\u4e00-\u9fff][\da-zA-Z\u4e00-\u9fff_/-]*)/
 
 export const RULE_NAME = 'hash-tags'
 
